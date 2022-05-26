@@ -150,6 +150,7 @@
     <Compile Include="DAL\deductionClass.cs" />
     <Compile Include="DAL\invoice.cs" />
     <Compile Include="DAL\security.cs" />
+    <Compile Include="DAL\Submitals.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

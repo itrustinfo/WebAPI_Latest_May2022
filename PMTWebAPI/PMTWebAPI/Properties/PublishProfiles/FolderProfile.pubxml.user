@@ -6,7 +6,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <TimeStampOfAssociatedLegacyPublishXmlFile />
-    <_PublishTargetUrl>D:\Projects\NJS_Prj_New\publish\ONTBWebAPI</_PublishTargetUrl>
+    <_PublishTargetUrl>D:\NJS Projects\publish\WebAPI</_PublishTargetUrl>
   </PropertyGroup>
   <ItemGroup>
     <File Include="bin/Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll">
@@ -37,10 +37,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>02/24/2022 08:18:56</publishTime>
     </File>
     <File Include="bin/PMTWebAPI.dll">
-      <publishTime>05/13/2022 16:47:28</publishTime>
+      <publishTime>05/26/2022 11:58:12</publishTime>
     </File>
     <File Include="bin/PMTWebAPI.pdb">
-      <publishTime>05/13/2022 16:47:28</publishTime>
+      <publishTime>05/26/2022 11:58:12</publishTime>
     </File>
     <File Include="bin/roslyn/csc.exe">
       <publishTime>02/24/2022 08:18:56</publishTime>
@@ -220,7 +220,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>02/24/2022 08:18:54</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>05/13/2022 16:34:51</publishTime>
+      <publishTime>05/24/2022 12:09:53</publishTime>
     </File>
   </ItemGroup>
 </Project>

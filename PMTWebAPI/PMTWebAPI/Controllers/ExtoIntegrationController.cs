@@ -1262,12 +1262,12 @@ namespace PMTWebAPI.Controllers
                                                         }
                                                     }
                                                 }
-                                                if (!CoverLetterUpload)
+                                                if (!CoverLetterUpload && httpRequest.Params["Coverletteruid"] == null)
                                                 {
                                                     sError = true;
                                                     ErrorText = "Please upload a cover letter file.";
                                                 }
-                                                if (!DocumentsUpload)
+                                                if (!DocumentsUpload & httpRequest.Params["Coverletteruid"] != null)
                                                 {
                                                     sError = true;
                                                     ErrorText = "Please upload document file.";
@@ -1319,9 +1319,68 @@ namespace PMTWebAPI.Controllers
                         sError = true;
                         ErrorText = "Project name not found.";
                     }
-
-                    if (!sError)
+                    //if(DocumentType != "Cover Letter")
+                    //{
+                    //    sError = true;
+                    //    ErrorText = "Invalid document Type";
+                    //}
+                    // To handle coverletteruid 
+                    // Added by Venkat on 25th May 2022
+                    bool coverLetterUidExists = false;
+                    bool docExists = false;
+                    DataTable dtDocuments = new DataTable();
+                    if (!sError && DocumentType == "Cover Letter")
                     {
+                        string coverLetterUid = httpRequest.Params["Coverletteruid"];
+                        if (coverLetterUid != null)
+                        {
+                            for (int i = 0; i < httpRequest.Files.Count; i++)
+                            {
+                                HttpPostedFile httpPostedFile = httpRequest.Files[i];
+                                if (httpPostedFile != null)
+                                {
+                                    string Extn = System.IO.Path.GetExtension(httpPostedFile.FileName);
+                                    if (Extn.ToLower() != ".exe" && Extn.ToLower() != ".msi" && Extn.ToLower() != ".db")
+                                    {   
+                                        //Added code by Venkat on 13 May 2022
+                                        if (!httpPostedFile.FileName.StartsWith("Cover") && httpPostedFile.FileName != "")
+                                        {
+                                            docExists = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                            }
+                           
+                            coverLetterUidExists = true;
+                            dtDocuments = db.getActualDocumentStatus(new Guid(pExists), new Guid(wExists), new Guid(coverLetterUid));
+                            if (dtDocuments.Rows.Count == 0)
+                            {
+                                sError = true;
+                                ErrorText = "Invalid Coverletteruid.";
+                                //
+                                return Json(new
+                                {
+                                    Status = "Failure",
+                                    Message = "Error:" + ErrorText
+                                });
+                            }
+                            if (!docExists)
+                            {
+                                sError = true;
+                                ErrorText = "Document not available";
+                                //
+                                return Json(new
+                                {
+                                    Status = "Failure",
+                                    Message = "Error:" + ErrorText
+                                });
+                            }
+                        }
+                    }
+                    //if (!sError && DocumentType == "Cover Letter")
+                    //{
                         DataSet ds = db.getDocumentsbyDocID(new Guid(SubmittalUID));
                         if (ds.Tables[0].Rows.Count > 0)
                         {
@@ -1353,10 +1412,11 @@ namespace PMTWebAPI.Controllers
                             }
                             DocumentDate = db.ConvertDateFormat(DocumentDate);
                             DateTime Document_Date = Convert.ToDateTime(DocumentDate);
-
-                            //Cover Letter Insert
-                            for (int i = 0; i < httpRequest.Files.Count; i++)
+                            if (!coverLetterUidExists)
                             {
+                                //Cover Letter Insert
+                                for (int i = 0; i < httpRequest.Files.Count; i++)
+                                {
                                 HttpPostedFile httpPostedFile = httpRequest.Files[i];
                                 if (httpPostedFile != null)
                                 {
@@ -1411,7 +1471,45 @@ namespace PMTWebAPI.Controllers
                                     }
                                 }
                             }
-                            DocUID = string.Empty;
+                            }
+                            else
+                            {
+                                // If Coverletteruid  is added in parameter, it will insert here.
+                                // Added by Venkat on 25th May 2022
+                                //if (dtDocuments.Rows.Count > 0)
+                                //{
+                                //    CoverPagePath = dtDocuments.Rows[0]["ActualDocument_Path"].ToString();
+                                //    string sFileName = Path.GetFileName(dtDocuments.Rows[0]["ActualDocument_Path"].ToString());
+                                //    string Extn = Path.GetExtension(dtDocuments.Rows[0]["ActualDocument_Path"].ToString());
+                                //    CoverLetterUID = Guid.NewGuid().ToString();
+
+                                //    int RetCount = db.DocumentCoverLetter_Insert_or_Update(new Guid(CoverLetterUID), new Guid(pExists), new Guid(wExists), new Guid(SubmittalUID), ReferenceNumber, "",
+                                //    DocumentFor, IncomingRec_Date, new Guid(ds.Tables[0].Rows[0]["FlowUID"].ToString()), sFileName, Description, 1, Extn, DocMedia_HardCopy ? "true" : "false",
+                                //    DocMedia_SoftCopy_PDF == true ? "true" : "false", DocMedia_SoftCopy_Editable == true ? "true" : "false", DocMedia_SoftCopy_Ref == true ? "true" : "false",
+                                //    DocMedia_HardCopy_Ref == true ? "true" : "false", DocMedia_NoMedia == true ? "true" : "false", CoverPagePath, Remarks ?? "", FileReferenceNumber ?? "", cStatus, Originator ?? "", Document_Date);
+                                //    if (RetCount <= 0)
+                                //    {
+                                //        sError = true;
+                                //        ErrorText = "Error occured while inserting cover letter. Please contact system admin.";
+                                //    }
+                                //    else
+                                //    {
+                                //        CoverUID = CoverLetterUID;
+                                //    }
+                                //}
+                            }
+                        // added on 03/06/2022
+                        if(sError)
+                        {
+                            //
+                            return Json(new
+                            {
+                                Status = "Failure",
+                                Message = "Error:" + ErrorText
+                            });
+                        }
+
+                        DocUID = string.Empty;
                             //ActualDocument Insert
                             for (int i = 0; i < httpRequest.Files.Count; i++)
                             {
@@ -1863,12 +1961,17 @@ namespace PMTWebAPI.Controllers
                                                     //throw
                                                 }
                                             }
+                                            else
+                                            {
+                                                sError = true;
+                                                ErrorText = "Document is already attached";
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
+                   // }
                 }
                 else
                 {
@@ -1892,15 +1995,25 @@ namespace PMTWebAPI.Controllers
             else
             {
                 //Added code by Venkat on 13 May 2022
-                if (DocUID == "")
+                //if (DocUID == "")
+                //{
+                //    return Json(new
+                //    {
+                //        Status = "Failure",
+                //        Message = "No Document was Attached."
+                //    });
+                //}
+                //else
+                if (!string.IsNullOrEmpty(CoverUID) && DocUID == "")
                 {
                     return Json(new
                     {
-                        Status = "Failure",
-                        Message = "No Document was Attached."
+                        Status = "Success",
+                        CoverLetterUID = CoverUID,
+                        Message = "Documents Uploaded Successfully."
                     });
                 }
-                else if (!string.IsNullOrEmpty(CoverUID))
+                else if (!string.IsNullOrEmpty(CoverUID) && DocUID != "")
                 {
                     return Json(new
                     {
@@ -1910,13 +2023,21 @@ namespace PMTWebAPI.Controllers
                         Message = "Documents Uploaded Successfully."
                     });
                 }
-                else
+                else if (DocUID != "")
                 {
                     return Json(new
                     {
                         Status = "Success",
                         ActualDocumentUID = DocUID.TrimEnd(','),
                         Message = "Documents Uploaded Successfully."
+                    });
+                }
+                else 
+                {
+                    return Json(new
+                    {
+                        Status = "Failure",
+                        Message = "No Document was Attached."
                     });
                 }
 

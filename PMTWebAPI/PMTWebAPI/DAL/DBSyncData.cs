@@ -1521,8 +1521,8 @@ namespace PMTWebAPI.DAL
 
 
         public int InsertorUpdate_Task(Guid TaskUID, Guid WorkPackageUID, Guid ProjectUID, Guid Workpackage_Option, string Owner, string Task_Section, string Name, string Description, string RFPReference, string POReference, string StartDate, string PlannedEndDate, string ProjectedEndDate, string Status, string Currency, string Currency_CultureInfo,float Basic_Budget,float GST,float Total_Budget,float ActualExpenditure,string RFPDocument,string NoOfDocuments,
-            int TaskLevel,Guid ParentTaskID,string UpdatedDate,float StatusPer,string UnitforProgress,string UnitQuantity,string PlannedStartDate,string ProjectedStartDate,string ActualEndDate,string Discipline,
-            string MileStone,string Task_Weightage,string Task_Type,string Delete_Flag,string Task_Order,string BOQDetailsUID,string GroupBOQItems)
+            int TaskLevel,string ParentTaskID,string UpdatedDate,float StatusPer,string UnitforProgress,string UnitQuantity,string PlannedStartDate,string ProjectedStartDate,string ActualEndDate,string Discipline,
+            string MileStone,string Task_Weightage,string Task_Type,string Delete_Flag,string Task_Order,string BOQDetailsUID,string GroupBOQItems, string Task_CulumativePercentage,string CumulativeAchvQuantity,string InGraph,string Report1, string Report2, string Report3, string Report4, string Report5)
         {
             int sresult = 0;
             try
@@ -1581,7 +1581,11 @@ namespace PMTWebAPI.DAL
                             cmd.Parameters.AddWithValue("@NoOfDocuments", int.Parse(NoOfDocuments));
                         }
                         cmd.Parameters.AddWithValue("@TaskLevel", TaskLevel);
-                        cmd.Parameters.AddWithValue("@ParentTaskID", ParentTaskID);
+                        if (!string.IsNullOrEmpty(ParentTaskID))
+                        {
+                            cmd.Parameters.AddWithValue("@ParentTaskID", ParentTaskID);
+                        }
+                      
 
                         if (!string.IsNullOrEmpty(UpdatedDate))
                         {
@@ -1641,7 +1645,39 @@ namespace PMTWebAPI.DAL
                             cmd.Parameters.AddWithValue("@GroupBOQItems", GroupBOQItems);
                         }
                         //
+                        if (!string.IsNullOrEmpty(Task_CulumativePercentage))
+                        {
+                            cmd.Parameters.AddWithValue("@Task_CulumativePercentage", float.Parse(Task_CulumativePercentage));
+                        }
+                        if (!string.IsNullOrEmpty(CumulativeAchvQuantity))
+                        {
+                            cmd.Parameters.AddWithValue("@CumulativeAchvQuantity", float.Parse(CumulativeAchvQuantity));
+                        }
+                        if (!string.IsNullOrEmpty(InGraph))
+                        {
+                            cmd.Parameters.AddWithValue("@InGraph", InGraph);
+                        }
 
+                        if (!string.IsNullOrEmpty(Report1))
+                        {
+                            cmd.Parameters.AddWithValue("@Report1", Report1);
+                        }
+                        if (!string.IsNullOrEmpty(Report2))
+                        {
+                            cmd.Parameters.AddWithValue("@Report2", Report2);
+                        }
+                        if (!string.IsNullOrEmpty(Report3))
+                        {
+                            cmd.Parameters.AddWithValue("@Report3", Report3);
+                        }
+                        if (!string.IsNullOrEmpty(Report4))
+                        {
+                            cmd.Parameters.AddWithValue("@Report4", Report4);
+                        }
+                        if (!string.IsNullOrEmpty(Report5))
+                        {
+                            cmd.Parameters.AddWithValue("@Report5", Report5);
+                        }
                         con.Open();
                         sresult = (int)cmd.ExecuteNonQuery();
                         con.Close();
@@ -1820,6 +1856,75 @@ namespace PMTWebAPI.DAL
             }
         }
 
+        // added on 15/06/2022
+        public int InsertOrUpdateDailyProgressReportMaster(Guid DPR_UID, string Description, string CreatedDate)
+        {
+            int sresult = 0;
+            try
+            {
+                using (SqlConnection con = new SqlConnection(db.GetConnectionString()))
+                {
+                    using (SqlCommand cmd = new SqlCommand("dbsync_InsertOrUpdateDailyProgressReportMaster"))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Connection = con;
+                        cmd.Parameters.AddWithValue("@DPR_UID", DPR_UID);
+                        cmd.Parameters.AddWithValue("@Description", Description);
+                        cmd.Parameters.AddWithValue("@CreatedDate", CreatedDate);
+                        con.Open();
+                        sresult = (int)cmd.ExecuteNonQuery();
+                        con.Close();
+                    }
+                }
+                return sresult;
+            }
+            catch (Exception ex)
+            {
+                return sresult = 0;
+            }
+        }
+
+        public int InsertOrUpdateDailyProgress(Guid UID, Guid DPR_UID, Guid ProjectUID,Guid WorkPackageUID,string VillageName,string PipeDia,decimal Quantity,decimal RevisedQuantity,decimal PipesReceived,decimal PreviousQuantity,decimal TodaysQuantity,decimal TotalQuantity,decimal Balance,string Remarks,string CreatedDate,string ZoneName,string DeletedFlag)
+        {
+            int sresult = 0;
+            try
+            {
+                using (SqlConnection con = new SqlConnection(db.GetConnectionString()))
+                {
+                    using (SqlCommand cmd = new SqlCommand("dbsync_InsertOrUpdateDailyProgress"))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Connection = con;
+                        cmd.Parameters.AddWithValue("@UID", UID);
+                        cmd.Parameters.AddWithValue("@DPR_UID", DPR_UID);
+                        cmd.Parameters.AddWithValue("@ProjectUID", ProjectUID);
+                        cmd.Parameters.AddWithValue("@WorkPackageUID", WorkPackageUID);
+                        cmd.Parameters.AddWithValue("@VillageName", VillageName);
+                        cmd.Parameters.AddWithValue("@PipeDia", PipeDia);
+                        cmd.Parameters.AddWithValue("@Quantity", Quantity);
+                        cmd.Parameters.AddWithValue("@RevisedQuantity", RevisedQuantity);
+                        cmd.Parameters.AddWithValue("@PipesReceived", PipesReceived);
+                        cmd.Parameters.AddWithValue("@PreviousQuantity", PreviousQuantity);
+                        cmd.Parameters.AddWithValue("@TodaysQuantity", TodaysQuantity);
+                        cmd.Parameters.AddWithValue("@TotalQuantity", TotalQuantity);
+                        cmd.Parameters.AddWithValue("@Balance", Balance);
+                        cmd.Parameters.AddWithValue("@Remarks", Remarks);
+                        cmd.Parameters.AddWithValue("@CreatedDate", CreatedDate);
+                        cmd.Parameters.AddWithValue("@ZoneName", ZoneName);
+                        cmd.Parameters.AddWithValue("@DeletedFlag", DeletedFlag);
+                        
+                        con.Open();
+                        sresult = (int)cmd.ExecuteNonQuery();
+                        con.Close();
+                    }
+                }
+                return sresult;
+            }
+            catch (Exception ex)
+            {
+                return sresult = 0;
+            }
+        }
 
     }
 }

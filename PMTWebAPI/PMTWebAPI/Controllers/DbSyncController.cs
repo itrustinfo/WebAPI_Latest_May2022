@@ -1087,7 +1087,7 @@ namespace PMTWebAPI.Controllers
                     float.Parse(httpRequest.Params["Total_Budget"].ToString()),
                     float.Parse(httpRequest.Params["ActualExpenditure"].ToString()), httpRequest.Params["RFPDocument"].ToString(),
                     httpRequest.Params["NoOfDocuments"].ToString(), int.Parse(httpRequest.Params["TaskLevel"].ToString()),
-                    new Guid(httpRequest.Params["ParentTaskID"].ToString()),
+                    httpRequest.Params["ParentTaskID"].ToString(),
                     httpRequest.Params["UpdatedDate"].ToString(), float.Parse(httpRequest.Params["StatusPer"].ToString()),
                     httpRequest.Params["UnitforProgress"].ToString(), httpRequest.Params["UnitQuantity"].ToString(),
                     httpRequest.Params["PlannedStartDate"].ToString(), httpRequest.Params["ProjectedStartDate"].ToString(),
@@ -1095,7 +1095,78 @@ namespace PMTWebAPI.Controllers
                     httpRequest.Params["MileStone"].ToString(), httpRequest.Params["Task_Weightage"].ToString(), 
                     httpRequest.Params["Task_Type"].ToString(), httpRequest.Params["Delete_Flag"].ToString(),
                     httpRequest.Params["Task_Order"].ToString(), httpRequest.Params["BOQDetailsUID"].ToString(),
-                    httpRequest.Params["GroupBOQItems"].ToString());
+                    httpRequest.Params["GroupBOQItems"].ToString()
+                    ,httpRequest.Params["Task_CulumativePercentage"].ToString()
+                    ,httpRequest.Params["CumulativeAchvQuantity"].ToString()
+                    , httpRequest.Params["InGraph"].ToString()
+                    , httpRequest.Params["Report1"].ToString()
+                    , httpRequest.Params["Report2"].ToString()
+                    , httpRequest.Params["Report3"].ToString()
+                    , httpRequest.Params["Report4"].ToString()
+                    , httpRequest.Params["Report5"].ToString()
+                   );
+                return Json(new
+                {
+                    Success = true
+
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    Success = false,
+                    Message = "Error" + ex.Message
+                });
+            }
+        }
+
+        [HttpPost] // for dbsync DailyProgressReportMasterSync
+        public IHttpActionResult DailyProgressReportMasterSync()
+        {
+            try
+            {
+                var httpRequest = HttpContext.Current.Request;
+                dbsync.InsertOrUpdateDailyProgressReportMaster(new Guid(httpRequest.Params["DPR_UID"].ToString()), httpRequest.Params["Description"].ToString(), httpRequest.Params["CreatedDate"].ToString());
+                return Json(new
+                {
+                    Success = true
+
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    Success = false,
+                    Message = "Error" + ex.Message
+                });
+            }
+        }
+
+        [HttpPost] // for dbsync DailyProgressSync
+        public IHttpActionResult DailyProgressSync()
+        {
+            try
+            {
+                var httpRequest = HttpContext.Current.Request;
+                //dbsync.InsertorUpdate_TaskScheduleVersion(new Guid(httpRequest.Params["TaskScheduleVersion_UID"].ToString()), new Guid(httpRequest.Params["TaskUID"].ToString()), float.Parse(httpRequest.Params["TaskScheduleVersion"].ToString()), httpRequest.Params["TaskScheduleType"].ToString(), httpRequest.Params["TaskSchedule_Approved"].ToString(), httpRequest.Params["Delete_Flag"].ToString());
+                dbsync.InsertOrUpdateDailyProgress(new Guid(httpRequest.Params["UID"].ToString()),
+                    new Guid(httpRequest.Params["DPR_UID"].ToString()),
+                    new Guid(httpRequest.Params["ProjectUID"].ToString()),
+                    new Guid(httpRequest.Params["WorkPackageUID"].ToString()),
+                    httpRequest.Params["VillageName"].ToString(),
+                    httpRequest.Params["PipeDia"].ToString(),
+                   decimal.Parse(httpRequest.Params["Quantity"].ToString()),
+                   decimal.Parse(httpRequest.Params["RevisedQuantity"].ToString()),
+                    decimal.Parse(httpRequest.Params["PipesReceived"].ToString()),
+                    decimal.Parse(httpRequest.Params["PreviousQuantity"].ToString()),
+                    decimal.Parse(httpRequest.Params["TodaysQuantity"].ToString()),
+                   decimal.Parse(httpRequest.Params["TotalQuantity"].ToString()), decimal.Parse(httpRequest.Params["Balance"].ToString()),
+                     httpRequest.Params["Remarks"].ToString(),
+                    httpRequest.Params["CreatedDate"].ToString(), httpRequest.Params["ZoneName"].ToString(),
+                    httpRequest.Params["DeletedFlag"].ToString()
+                   );
                 return Json(new
                 {
                     Success = true
